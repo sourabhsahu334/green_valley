@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, ScrollView } from "react-native";
 import { http } from "../utils/AxiosInstance";
+import theme from "../utils/theme";
+import { globalStyles } from "../utils/GlobalStyles";
+import { CustomButton } from "../components/CustomButton";
+import { RenderIcon } from "../components/RenderIcon";
 
 const Products = () => {
-  const [cartItems, setCartItems] = useState({});
+  const [cartItems, setCartItems] = useState([]);
   const [categories,setCategory]=useState([])
   const [categoryid,setCategoryId]=useState()
   useEffect(()=>{
@@ -14,17 +18,35 @@ const Products = () => {
       const {data} = await http.get('/',{params:{method:'categoryList',userId:1}})
       console.log(data);
       setCategory(data?.response)
+      setCategoryId(data?.response?.[0]?.categoryId)
     } catch (error) {
       console.log(error)
     }
   }
-  const [products,setProducts]=useState()
+  const [products,setProducts]=useState();
+
+ const addtocart = async()=>{
+  try {
+    const {data} = await http.get(`/`,{params:{
+      method:"addtocart",
+      userId:1,
+      productId:cartItems?.map((item)=>{return item?.productId}).join(','),
+      size:cartItems?.map((item)=>{return item?.productId}).join(',')
+      ,qty:cartItems?.map((item)=>{return item?.quantity}).join(','),
+      price:cartItems?.map((item)=>{return item?.price}).join(',')
+    }})
+    console.log(data)
+    setCartItems([])
+  } catch (error) {
+    console.log(error)
+  }
+ }
 
   const fethrpdoc = async()=>{
     try {
       const {data} = await http.get('/',{params:{
-        method:"",categoryId:  categoryid    }})
-      console.log()
+        method:"productList",categoryId: 2,userId:1   }})
+      console.log(data?.response?.[0],"prod",categoryid)
       setProducts(data?.response)
     } catch (error) {
       console.log(error)
@@ -35,52 +57,146 @@ const Products = () => {
   fethrpdoc()
   },[categoryid])
 
-  const handleIncrement = (id) => {
-    setCartItems((prev) => ({
-      ...prev,
-      [id]: (prev[id] || 0) + 1,
-    }));
+  const handleIncrement = (id,price,size) => {
+    console.log(cartItems, "cartItems before findIndex");
+  
+    if (!Array.isArray(cartItems)) {
+      console.error("cartItems is not an array:", cartItems);
+      return;
+    }
+  
+    // Update the cartItems array
+    setCartItems((prevCartItems) => {
+      const existingItemIndex = prevCartItems.findIndex((item) => item.id === id);
+  
+      if (existingItemIndex !== -1) {
+        // If the product already exists, increment the quantity
+        return prevCartItems.map((item, index) =>
+          index === existingItemIndex
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      } else {
+        // If the product doesn't exist, add it to the cart
+        return [
+          ...prevCartItems,
+          { id, quantity: 1, price: price, size: size}, // Default values
+        ];
+      }
+    });
+  
+    // Update the products array
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.productId === id
+          ? { ...product, quantity: (product.quantity || 0) + 1 }
+          : product
+      )
+    );
   };
-
-  const handleDecrement = (id) => {
-    setCartItems((prev) => ({
-      ...prev,
-      [id]: prev[id] > 0 ? prev[id] - 1 : 0,
-    }));
+  
+  
+  
+  const handleDecrement = (id,price,size) => {
+    // Update the cartItems array
+    setCartItems((prevCartItems) => {
+      const existingItemIndex = prevCartItems.findIndex((item) => item.id === id);
+  
+      if (existingItemIndex !== -1) {
+        const updatedCartItems = [...prevCartItems];
+  
+        // Decrement the quantity if it's greater than 0
+        if (updatedCartItems[existingItemIndex].quantity > 0) {
+          updatedCartItems[existingItemIndex] = {
+            ...updatedCartItems[existingItemIndex],
+            quantity: updatedCartItems[existingItemIndex].quantity - 1,
+          };
+        }
+  
+        // Remove the item if the quantity becomes 0
+        if (updatedCartItems[existingItemIndex].quantity === 0) {
+          updatedCartItems.splice(existingItemIndex, 1);
+        }
+  
+        return updatedCartItems;
+      }
+  
+      return prevCartItems; // Return the previous state if the item doesn't exist
+    });
+  
+    // Update the products array
+    setProducts((prevProducts) =>
+      prevProducts.map((product) =>
+        product.productId === id && product.quantity > 0
+          ? { ...product, quantity: product.quantity - 1 }
+          : product
+      )
+    );
   };
-
+  
+  
   const renderProduct = ({ item }) => {
-    const quantity = cartItems[item.id] || 0;
-
+    const quantity = item.quantity || 0;
+  
     return (
       <View style={styles.productContainer}>
         <View style={styles.imageBox}></View>
         <View style={styles.productDetails}>
-          <Text style={styles.productName}>{item.name}</Text>
-          <Text style={styles.productPrice}>₹{item.price.toFixed(2)}</Text>
-          <Text style={styles.productQuantity}>{item.quantityOptions[0]}</Text>
+          <Text style={globalStyles.text}>{item.productName}</Text>
+          <Text style={styles.productPrice}>₹{item?.price}</Text>
+          <Text style={styles.productQuantity}>{item?.quantityOptions?.[0]}</Text>
+          {item?.size?.map((ite)=>(
+            <View style={{width:100}}>
+              <TouchableOpacity onPress={()=>{
+                setProducts((prevProducts) =>
+                  prevProducts.map((product) =>
+                    product.productId === id 
+                      ? { ...product, sizeDefault:ite}
+                      : product
+                  )
+                );
+              }} style={[{flexDirection:'row',width:80,borderRadius:10,justifyContent:'center',alignItems:'center',backgroundColor:'rgba(0,0,0,.1)'}]}>
+              <Text style={[globalStyles.text2]}>{ite}</Text>
+              <RenderIcon iconName={'sort-down'} styles={{marginLeft:10,marginBottom:5}} iconSize={20} iconfrom={'FontAwesome'}/>
+            </TouchableOpacity>
+            </View>
+          ))}
         </View>
-        <View style={styles.actionContainer}>
-          <Text style={styles.totalPrice}>₹{(item.price * quantity).toFixed(2)}</Text>
-          <View style={styles.buttonGroup}>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => handleDecrement(item.id)}
-            >
-              <Text style={styles.actionText}>-</Text>
-            </TouchableOpacity>
-            <Text style={styles.quantityText}>{quantity}</Text>
-            <TouchableOpacity
-              style={styles.actionButton}
-              onPress={() => handleIncrement(item.id)}
-            >
-              <Text style={styles.actionText}>+</Text>
-            </TouchableOpacity>
+        {quantity ? (
+          <View style={styles.actionContainer}>
+            <Text style={styles.totalPrice}>₹{item.price * quantity}</Text>
+            <View style={styles.buttonGroup}>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => handleDecrement(item.productId)}
+              >
+                <Text style={styles.actionText}>-</Text>
+              </TouchableOpacity>
+              <Text style={styles.quantityText}>{quantity}</Text>
+              <TouchableOpacity
+                style={styles.actionButton}
+                onPress={() => handleIncrement(item.productId)}
+              >
+                <Text style={styles.actionText}>+</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
+        ) : (
+          <TouchableOpacity
+            onPress={() => handleIncrement(item.productId,item.price * quantity, item?.sizeDefault)}
+            style={{
+              backgroundColor: theme.colors.primary,
+              paddingHorizontal: 10,
+              borderRadius: 10,
+            }}
+          >
+            <Text style={[globalStyles.text2]}>Add</Text>
+          </TouchableOpacity>
+        )}
       </View>
     );
   };
+  
 
   return (
     <View style={styles.container}>
@@ -94,13 +210,16 @@ const Products = () => {
       <View style={{height:40}}>
       <ScrollView style={{height:40,paddingVertical:5}} horizontal>
        {categories?.map((ite)=>(
-        <Text style={[styles.tabText,ite.categoryId==categoryid&& {...styles.activeTab},{height:30,paddingHorizontal:15}]}>{ite.categoryName}</Text>
+        <TouchableOpacity onPress={()=>setCategoryId(ite.categoryId)}>
+                  <Text style={[styles.tabText,ite.categoryId==categoryid&& {...styles.activeTab},{height:30,paddingHorizontal:15}]}>{ite.categoryName}</Text>
+
+        </TouchableOpacity>
        ))}
       </ScrollView>
       </View>
 
       {/* Product List */}
-      <View style={{flex:1,height:"100%"}}>
+      <View style={{flex:1}}>
       <FlatList
         data={products}
         renderItem={renderProduct}
@@ -108,6 +227,7 @@ const Products = () => {
         contentContainerStyle={styles.list}
       />
       </View>
+      {cartItems?.length>0&&<CustomButton onPressfuntion={()=>{addtocart()}} style={{width:'95%',margin:10}}  text={'Add to Cart'}/>}
 
       {/* Footer Navigation */}
       {/* <View style={styles.footer}>
@@ -126,7 +246,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   header: {
-    backgroundColor: "#E53935",
+    backgroundColor: theme.colors.primary,
     padding: 16,
   },
   headerText: {

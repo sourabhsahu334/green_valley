@@ -14,33 +14,19 @@ import { globalStyles } from "../utils/GlobalStyles";
 import { CustomButton } from "../components/CustomButton";
 import { RenderIcon } from "../components/RenderIcon";
 
-const Cart = () => {
+const MyOrders = () => {
   const [cartItems, setCartItems] = useState([]);
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState();
   const [products, setProducts] = useState([]);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
 
-  const fetchCategories = async () => {
-    try {
-      const { data } = await http.get("/", {
-        params: { method: "categoryList", userId: 1 },
-      });
-      setCategories(data?.response);
-      setCategoryId(data?.response?.[0]?.categoryId);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
 
   const fetchProducts = async () => {
     try {
       const { data } = await http.get("/", {
         params: {
-          method: "myCart",
+          method: "myorder",
           // categoryId,
           userId: 1,
         },
@@ -53,86 +39,91 @@ const Cart = () => {
   };
 
   useEffect(() => {
-    if (categoryId) {
-      fetchProducts();
-    }
-  }, [categoryId]);
+    fetchProducts()
+  }, []);
 
-  const addToCart = async () => {
-    try {
-      const { data } = await http.get("/", {
-        params: {
-          method: "addtocart",
-          userId: 1,
-          productId: cartItems.map((item) => item.productId).join(","),
-          size: cartItems.map((item) => item.size).join(","),
-          qty: cartItems.map((item) => item.quantity).join(","),
-          price: cartItems.map((item) => item.price).join(","),
-        },
-      });
-      console.log("Cart added successfully:", data);
-      setCartItems([]);
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-    }
-  };
 
-  const handleIncrement = (id, price, size) => {
-    setCartItems((prevCartItems) => {
-      const existingItemIndex = prevCartItems.findIndex(
-        (item) => item.id === id
-      );
+//   useEffect(() => {
+//     if (categoryId) {
+//       fetchProducts();
+//     }
+//   }, [categoryId]);
 
-      if (existingItemIndex !== -1) {
-        return prevCartItems.map((item, index) =>
-          index === existingItemIndex
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        );
-      } else {
-        return [
-          ...prevCartItems,
-          { id, quantity: 1, price, size },
-        ];
-      }
-    });
+//   const addToCart = async () => {
+//     try {
+//       const { data } = await http.get("/", {
+//         params: {
+//           method: "addtocart",
+//           userId: 1,
+//           productId: cartItems.map((item) => item.productId).join(","),
+//           size: cartItems.map((item) => item.size).join(","),
+//           qty: cartItems.map((item) => item.quantity).join(","),
+//           price: cartItems.map((item) => item.price).join(","),
+//         },
+//       });
+//       console.log("MyOrders added successfully:", data);
+//       setCartItems([]);
+//     } catch (error) {
+//       console.error("Error adding to cart:", error);
+//     }
+//   };
 
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.productId === id
-          ? { ...product, quantity: (product.quantity || 0) + 1 }
-          : product
-      )
-    );
-  };
+//   const handleIncrement = (id, price, size) => {
+//     setCartItems((prevCartItems) => {
+//       const existingItemIndex = prevCartItems.findIndex(
+//         (item) => item.id === id
+//       );
 
-  const handleDecrement = (id) => {
-    setCartItems((prevCartItems) => {
-      const existingItemIndex = prevCartItems.findIndex(
-        (item) => item.id === id
-      );
+//       if (existingItemIndex !== -1) {
+//         return prevCartItems.map((item, index) =>
+//           index === existingItemIndex
+//             ? { ...item, quantity: item.quantity + 1 }
+//             : item
+//         );
+//       } else {
+//         return [
+//           ...prevCartItems,
+//           { id, quantity: 1, price, size },
+//         ];
+//       }
+//     });
 
-      if (existingItemIndex !== -1) {
-        const updatedCartItems = [...prevCartItems];
-        if (updatedCartItems[existingItemIndex].quantity > 0) {
-          updatedCartItems[existingItemIndex].quantity -= 1;
-        }
-        if (updatedCartItems[existingItemIndex].quantity === 0) {
-          updatedCartItems.splice(existingItemIndex, 1);
-        }
-        return updatedCartItems;
-      }
-      return prevCartItems;
-    });
+//     setProducts((prevProducts) =>
+//       prevProducts.map((product) =>
+//         product.productId === id
+//           ? { ...product, quantity: (product.quantity || 0) + 1 }
+//           : product
+//       )
+//     );
+//   };
 
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.productId === id && product.quantity > 0
-          ? { ...product, quantity: product.quantity - 1 }
-          : product
-      )
-    );
-  };
+//   const handleDecrement = (id) => {
+//     setCartItems((prevCartItems) => {
+//       const existingItemIndex = prevCartItems.findIndex(
+//         (item) => item.id === id
+//       );
+
+//       if (existingItemIndex !== -1) {
+//         const updatedCartItems = [...prevCartItems];
+//         if (updatedCartItems[existingItemIndex].quantity > 0) {
+//           updatedCartItems[existingItemIndex].quantity -= 1;
+//         }
+//         if (updatedCartItems[existingItemIndex].quantity === 0) {
+//           updatedCartItems.splice(existingItemIndex, 1);
+//         }
+//         return updatedCartItems;
+//       }
+//       return prevCartItems;
+//     });
+
+//     setProducts((prevProducts) =>
+//       prevProducts.map((product) =>
+//         product.productId === id && product.quantity > 0
+//           ? { ...product, quantity: product.quantity - 1 }
+//           : product
+//       )
+//     );
+//   };
 
   const renderProduct = ({ item }) => {
     const quantity = item.quantity || 0;
@@ -219,7 +210,7 @@ const Cart = () => {
         <CustomButton
           onPressfuntion={addToCart}
           style={styles.cartButton}
-          text="Add to Cart"
+          text="Add to MyOrders"
         />
       )}
     </View>
@@ -371,4 +362,4 @@ const styles = StyleSheet.create({
 });
 
 
-export default Cart;
+export default MyOrders;

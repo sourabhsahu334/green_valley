@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const prodUrl = `https://sellpe.in/greenvalley/activity.php`;
-
+export const BASE_URL ='https://www.radicalone.co.in/kestrel/activity.php?';
 export const http = axios.create({
   baseURL: prodUrl,
   headers: {

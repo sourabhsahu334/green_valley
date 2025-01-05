@@ -7,6 +7,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Login from './src/pages/Login';
 import Products from './src/pages/Product';
 import Cart from './src/pages/Cart';
+import Splash from './src/pages/Splash';
+import MyAddresses from './src/pages/MyAddresses';
 
 // Dummy screen components
 const CartScreen = () => (
@@ -46,7 +48,7 @@ const TabNavigator = () => (
         } else if (route.name === 'Orders') {
           iconName = 'list-outline';
         }
-        return <Icon name={iconName} size={size} color={color} />;
+        return iconName ? <Icon name={iconName} size={size} color={color} /> : null;
       },
       tabBarLabel: '', // Removes the label text under the icons
       tabBarActiveTintColor: '#6200EE',
@@ -54,21 +56,32 @@ const TabNavigator = () => (
       headerShown: false, // Removes the header for each tab screen
     })}
   >
+   
     <Tab.Screen name="Main" component={Products} />
     <Tab.Screen name="Cart" component={Cart} />
     <Tab.Screen name="Orders" component={OrdersScreen} />
     <Tab.Screen name="Profile" component={ProfileScreen} />
+    <Tab.Screen
+      name="MyAddresses"
+      component={MyAddresses}
+      options={{
+        tabBarItemStyle: {display:'none'}
+      }}
+    />
   </Tab.Navigator>
 );
 
-// Stack Navigator
 const App = () => (
   <NavigationContainer>
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={Login} />
-      <Stack.Screen name="Home" component={TabNavigator} />
+    <Stack.Navigator>
+      <Stack.Screen name="Splash" component={Splash} options={{ headerShown: false }} />
+      <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+      <Stack.Screen name="Home" component={TabNavigator} options={{ headerShown: false }} />
     </Stack.Navigator>
   </NavigationContainer>
 );
 
 export default App;
+
+// Stack Navigator
+

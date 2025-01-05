@@ -1,4 +1,4 @@
-import Family from "../Utilities/Family";
+// import Family from "../Utilities/Family";
 import theme from "./theme";
 
 export const  globalStyles = {
@@ -35,7 +35,7 @@ export const  globalStyles = {
     },
     text:{
       color:"black",
-      fontFamily:Family.Medium,
+      // fontFamily:Family.Medium,
       fontSize:16,
       fontWeight:"bold"
     },

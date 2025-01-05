@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { http } from "../utils/AxiosInstance";
 import theme from "../utils/theme";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Login = ({ navigation }) => {
   const [screen, setScreen] = useState("login"); // login, otp, register
@@ -48,8 +49,9 @@ const Login = ({ navigation }) => {
           mobile: mobileNumber,
         },
       });
-
+      console.log(data)
       if (data?.response?.status === 1) {
+        alert(data?.response?.otp)
         setScreen("otp");
       } else if (data?.response.status === 2) {
         setScreen("register");
@@ -97,6 +99,7 @@ const Login = ({ navigation }) => {
       if (data?.response?.status==1) {
         Alert.alert("Success", "Registration successful. Proceed to login.");
         // setScreen("otp");
+        AsyncStorage.setItem('UserID',data?.response?.userId)
         navigation.navigate('Home')
       } 
       // else {
