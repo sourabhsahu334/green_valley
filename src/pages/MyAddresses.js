@@ -1,108 +1,133 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, TouchableOpacity, View, FlatList, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
-// import Header from '../component/Header'
-// import MyAddressComponent from '../component/myAddresses/MyAddressComponent'
-import MyAddressComponent from '../components/myAddresses/MyAddressComponent';
-// import IconButton from '../component/Button/IconButton'
-import IconButton from '../components/Button/IconButton';
-import Entypo from 'react-native-vector-icons/Entypo';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { responsiveFontSize } from 'react-native-responsive-dimensions'
-// import { useAuth } from '../context/AuthContext'
+import MyAddressComponent from '../components/myAddresses/MyAddressComponent'
+import IconButton from '../components/Button/IconButton'
+import Entypo from 'react-native-vector-icons/Entypo'
+import { responsiveFontSize, responsiveHeight } from 'react-native-responsive-dimensions'
 import axios from 'axios'
-// import { BASE_URL } from '../../config'
-import { useIsFocused } from '@react-navigation/native'
-import { BASE_URL } from '../utils/AxiosInstance'
+import { useIsFocused, useNavigation } from '@react-navigation/native'
+import { BASE_URL, http } from '../utils/AxiosInstance'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { globalStyles } from '../utils/GlobalStyles'
+import theme from '../utils/theme'
+import { CustomButton } from '../components/CustomButton'
+import CustomModal from '../components/CustomModal'
+import AddAddressForm from './AddAddressForm'
 
-const MyAddresses = ({navigation}) => {
-  const isFocused = useIsFocused();
+const MyAddresses = ({ address, setAddress, onPress, onClose }) => {
+  const isFocused = useIsFocused()
+  const navigation = useNavigation()
+  const [addmodal, setmodal] = useState(false)
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(false)
 
-  // const{userId}=useAuth()
-const [data, setData] = useState([]);
-const [loading, setLoading] = useState(false);
-
-const getUserDetail = async () => {
-  
-
-  setLoading(true);
-  if (userId) {
-    await axios
-      .get(`${BASE_URL}method=viewAddress&userId=${userId}`)
-      .then(response => {
-        console.log("response.data.response,",response.data.addressBook);
-        setData(response.data.addressBook);
-        setLoading(false);
-      })
-      .catch(error => {
-        if (error.isAxiosError && !error.response) {
-          // Network error
-          Alert.alert('Network Error', 'Please check your internet connection.');
-        } else {
-          // Other errors
-          console.error('Error adding item to cart:', error);
-          Alert.alert('Error', 'Something went wrong. Please try again later.');
-        }
-        setLoading(false);
-       
-      });
-  }
-};
-useEffect(()=>{
-getUserDetail()
-},[navigation,isFocused])
-const handleDeleteAddress = (addressId) => {
-  if (addressId) {
-   
-   
-    const addAddressUrl = `${BASE_URL}method=deleteAddress&addressId=${addressId}`;
-
-    axios
-      .get(addAddressUrl)
-      .then(async (response) => {
-        console.log('Response:', response.data);
-      getUserDetail()
-        // Alert.alert('Success', 'Address added successfully');
+  const getUserDetail = async () => {
+    try {
+      setLoading(true)
+      const userId = await AsyncStorage.getItem('UserID');
       
-      })
-      .catch(error => {
-      
-        if (error.isAxiosError && !error.response) {
-          Alert.alert('Network Error', 'Please check your internet connection.');
-        } else {
-          console.error('Error adding address:', error);
-          Alert.alert('Error', 'Something went wrong. Please try again later.');
-        }
-      });
+      const {data} = await http.get(`/`,{params:{
+        method:"viewAddress",userId:userId
+      }})
+      console.log(data,"obbbb",userId,"o")
+      setLoading(false)
+      setData(data?.response)
+    } catch (error) {
+      setLoading(false)
+      console.log(error,"onnn")
+    }
   }
-};
+
+  useEffect(() => {
+    getUserDetail()
+  }, [navigation, isFocused])
+
+  const handleDeleteAddress = (addressId) => {
+    if (addressId) {
+      const addAddressUrl = `${BASE_URL}method=deleteAddress&addressId=${addressId}`
+
+      axios
+        .get(addAddressUrl)
+        .then(async (response) => {
+          console.log('Response:', response.data)
+          getUserDetail()
+        })
+        .catch(error => {
+          if (error.isAxiosError && !error.response) {
+            Alert.alert('Network Error', 'Please check your internet connection.')
+          } else {
+            console.error('Error adding address:', error)
+            Alert.alert('Error', 'Something went wrong. Please try again later.')
+          }
+        })
+    }
+  }
+
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => setAddress(item?.addressId)}
+      style={{ flexDirection: 'row', alignItems: 'center' }}
+    >
+      <View style={[globalStyles.circle, { backgroundColor: address == item?.addressId ? 'black' : 'white' }]} />
+      <MyAddressComponent
+        onPressDelete={async () => { await handleDeleteAddress(item.addressId); getUserDetail() }}
+        label={item.name+", "+item.mobile}
+        address={`${item.houseNo}, ${item.address}, ${item.landmark}`}
+      />
+    </TouchableOpacity>
+  )
+
   return (
     <View style={styles.container}>
-       {/* <Header
-             backgroundColor= "#ffffff"
+      
 
-          onBackPress={() => console.log('back')}
-          title="My Addresses"
+      <FlatList
+      style={{flexGrow:1}}
+      ListHeaderComponent={
+        <CustomButton
+        text="Add New Address"
+        style={{ marginTop: 10, backgroundColor: 'white', borderColor: 'black', borderWidth: 1 }}
+        textColor="black"
+        backgroundColor={theme.colors.primary}
+        onPressfuntion={() => { setmodal(true) }}
+      />
+      }
+      contentContainerStyle={{flexGrow:1,paddingBottom:100,marginTop:10}}
+        data={data}
+        keyExtractor={(item) => item.addressId.toString()}
+        renderItem={renderItem}
+        ListEmptyComponent={
+          <Text style={{ alignSelf: "center", fontSize: responsiveFontSize(1.8) }}>
+            Please add address
+          </Text>
+        }
+      />
+
+      <CustomModal
+      type={'bottom'}
+        height={responsiveHeight(100)}
+        name={'Add New Address'}
+        visible={addmodal}
+        setVisible={setmodal}
+        modalContent={<AddAddressForm setModal={setmodal} getUserDetail={getUserDetail} />}
+      />
+
+      <View style={{ position: "absolute", bottom: 10, left: 0, right: 0, paddingHorizontal: 12 }}>
+      
+        <IconButton
+          text="Next"
           textColor="black"
-        /> */}
-        {data==null?<Text style={{alignSelf:"center",fontSize:responsiveFontSize(1.8)}}>Please add address</Text>:(data?.map((item)=>(
-
-        <MyAddressComponent onPressDelete={()=>handleDeleteAddress(item.addressId)} key={item.addressId}  label="Home" address={`${item.houseNo}, ${item.streetAddress}, ${item.landmark}, ${item.pincode}`}/>
-        )))}
-
-        <View style={{ position:"absolute",bottom:10,left:0,right:0 ,paddingHorizontal:12}}>
-          <IconButton
-            text="Add New Address"
-            backgroundColor="#c43c02ff"
-            onPress={() => navigation.navigate("AddAddressForm")}
-            icon={
-              <Entypo
-                name="plus"
-                size={responsiveFontSize(2.3)}
-                color="#e1e8faff"
-              />
-            }
-          />
-        </View>
+          backgroundColor={theme.colors.primary}
+          onPress={() => onPress()}
+          icon={
+            <Entypo
+              name="forward"
+              size={responsiveFontSize(2.3)}
+              color="black"
+            />
+          }
+        />
+      </View>
     </View>
   )
 }
@@ -110,11 +135,9 @@ const handleDeleteAddress = (addressId) => {
 export default MyAddresses
 
 const styles = StyleSheet.create({
-container:{
-  flex:1,
-  backgroundColor: "#ffffff",
-  paddingHorizontal:12
-
-}
-
+  container: {
+    flex: 1,
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 12
+  }
 })

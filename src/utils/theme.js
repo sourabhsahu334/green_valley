@@ -2,7 +2,7 @@ import { YellowBox } from "react-native";
 
 const theme = {
     colors: {
-      primary: "#bbdebe",
+      primary: "#4fbf4d",
       primaryOpacity:"#FFF2F3",
       white: "#FFFFFF",
       bg:"#F9FCFF",

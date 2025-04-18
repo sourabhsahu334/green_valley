@@ -1,19 +1,28 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
-const prodUrl = `https://sellpe.in/greenvalley/activity.php`;
-export const BASE_URL ='https://www.radicalone.co.in/kestrel/activity.php?';
+const prodUrl = `https://radicalone.co.in/sabjihouse/activity.php`
+export const BASE_URL ='https://radicalone.co.in/sabjihouse/activity.php?'
 export const http = axios.create({
   baseURL: prodUrl,
   headers: {
     "Content-Type": "application/json",
     Accept: "*/*",
   },
-  timeout: 3000,
+  timeout: 30000,
 });
 
 http.interceptors.request.use(
   async (config) => {
     // Construct the complete URL with query parameters
+    const data = await AsyncStorage.getItem('UserID');
+    config.params = {
+      ...config.params,
+      // locale: lang||"en",
+      // sort: 'updatedAt:desc'
+      userId:data
+    };
+
     const url = new URL(config.baseURL + config.url);
     if (config.params) {
       Object.keys(config.params).forEach(key =>

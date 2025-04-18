@@ -3,6 +3,7 @@ import React, {useEffect} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Animatable from 'react-native-animatable';
 import { globalStyles } from '../utils/GlobalStyles';
+import theme from '../utils/theme';
 // import { useDispatch } from 'react-redux';
 // import { addNavREf } from '../redux/actions/navigationREf';
 // import { globalStyles } from '../utils/GlobalStyles';
@@ -24,19 +25,14 @@ const Splash = ({navigation}) => {
   
 
   return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',backgroundColor:"white"}}>
-      {/* <Image source={require('../Assets/logo.png')} style={styles.logo}/> */}
-      {/* <Image
-        source={require('../Images/SplashBG.png')}
-        style={{position: 'absolute'}}
-      /> */}
-      <Text style={[globalStyles.text]}>Welcome to the green valley</Text>
-      {/* <Animatable.Image
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',backgroundColor:theme.colors.primary}}>
+    
+      <Animatable.Image
         animation="bounceIn"
         duration={5000}
-        source={require('../Images/Start_HEADER.png')}
-        style={{width: '100%', height: 350, resizeMode: 'contain',borderRadius:200}}
-      /> */}
+        source={require('../../assets/icon.jpeg')}
+        style={{width: 250, height: 250, resizeMode: 'contain'}}
+      />
       {/* <Text style={[globalStyles.text2,{fontSize:28,color:theme.colors.primary,fontWeight:"bold"}]}>VAIDIK WORLD</Text>
       <Text style={[globalStyles.text2,{fontSize:28,color:theme.colors.primary,fontWeight:"bold"}]}>ASTROLOGY</Text> */}
 

@@ -18,18 +18,18 @@ const MyAddressComponent = ({label, address,onPressDelete}) => {
         <Text style={styles.address}>{address}</Text>
       </View>
       <View style={styles.iconContainer}>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[styles.iconView, {backgroundColor: '#f27b1fff'}]}>
           <MaterialCommunityIcons
             size={responsiveWidth(5)}
             name="pencil-outline"
             color="#ffffffff"
           />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
         <TouchableOpacity
         onPress={onPressDelete}
-          style={[styles.iconView, {backgroundColor: '#ff5452ff'}]}>
+          style={[styles.iconView, {backgroundColor: '#ff5452ff',marginRight:10,marginLeft:'auto'}]}>
           <MaterialCommunityIcons
             size={responsiveWidth(5)}
             name="delete-outline"

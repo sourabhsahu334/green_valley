@@ -9,6 +9,7 @@ export const CustomButton = ({
   loading,
   style,
   bg,
+  disabled,
   width,
   textColor,
 }) => {
@@ -20,6 +21,7 @@ export const CustomButton = ({
     />
   ) : (
     <TouchableOpacity
+    disabled={disabled}
       onPress={onPressfuntion}
       style={{
         backgroundColor: bg ? bg : theme.colors.buttonBG,

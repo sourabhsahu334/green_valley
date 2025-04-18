@@ -2,215 +2,122 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
   FlatList,
   StyleSheet,
-  ScrollView,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+  BackHandler,
 } from "react-native";
 import { http } from "../utils/AxiosInstance";
 import theme from "../utils/theme";
+import { useIsFocused, useRoute } from "@react-navigation/native";
 import { globalStyles } from "../utils/GlobalStyles";
-import { CustomButton } from "../components/CustomButton";
-import { RenderIcon } from "../components/RenderIcon";
+import PageHeader from "../components/PageHeader";
+import { responsiveWidth } from "react-native-responsive-dimensions";
+import moment from "moment";
 
-const MyOrders = () => {
-  const [cartItems, setCartItems] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [categoryId, setCategoryId] = useState();
+
+const MyOrders = ({ navigation }) => {
   const [products, setProducts] = useState([]);
+  const route = useRoute();
+console.log(route.name,"name");
+  const [isLoading, setIsLoading] = useState(true); // add loading state
+  const focus = useIsFocused();
 
 
+  useEffect(() => {
+    const backAction = () => {
+      console.log()
+      // Directly exit the app without showing any alert
+      if(route?.name=="Orders"){
+        navigation.navigate('Main');
+      }
+      else{
+        navigation.navigate('Orders');
+
+      }
+      // Return true to indicate that we've handled the event
+      return true;
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    // Clean up the event listener on unmount
+    return () => backHandler.remove();
+  }, []);
 
   const fetchProducts = async () => {
     try {
+      setIsLoading(true); // show activity indicator
       const { data } = await http.get("/", {
         params: {
           method: "myorder",
-          // categoryId,
           userId: 1,
         },
       });
-      console.log(data)
       setProducts(data?.response);
+      console.log(data.response,"oo");
     } catch (error) {
       console.error("Error fetching products:", error);
+    } finally {
+      setIsLoading(false); // hide activity indicator
     }
   };
 
   useEffect(() => {
-    fetchProducts()
-  }, []);
+    fetchProducts();
+  }, [focus]);
 
-
-//   useEffect(() => {
-//     if (categoryId) {
-//       fetchProducts();
-//     }
-//   }, [categoryId]);
-
-//   const addToCart = async () => {
-//     try {
-//       const { data } = await http.get("/", {
-//         params: {
-//           method: "addtocart",
-//           userId: 1,
-//           productId: cartItems.map((item) => item.productId).join(","),
-//           size: cartItems.map((item) => item.size).join(","),
-//           qty: cartItems.map((item) => item.quantity).join(","),
-//           price: cartItems.map((item) => item.price).join(","),
-//         },
-//       });
-//       console.log("MyOrders added successfully:", data);
-//       setCartItems([]);
-//     } catch (error) {
-//       console.error("Error adding to cart:", error);
-//     }
-//   };
-
-//   const handleIncrement = (id, price, size) => {
-//     setCartItems((prevCartItems) => {
-//       const existingItemIndex = prevCartItems.findIndex(
-//         (item) => item.id === id
-//       );
-
-//       if (existingItemIndex !== -1) {
-//         return prevCartItems.map((item, index) =>
-//           index === existingItemIndex
-//             ? { ...item, quantity: item.quantity + 1 }
-//             : item
-//         );
-//       } else {
-//         return [
-//           ...prevCartItems,
-//           { id, quantity: 1, price, size },
-//         ];
-//       }
-//     });
-
-//     setProducts((prevProducts) =>
-//       prevProducts.map((product) =>
-//         product.productId === id
-//           ? { ...product, quantity: (product.quantity || 0) + 1 }
-//           : product
-//       )
-//     );
-//   };
-
-//   const handleDecrement = (id) => {
-//     setCartItems((prevCartItems) => {
-//       const existingItemIndex = prevCartItems.findIndex(
-//         (item) => item.id === id
-//       );
-
-//       if (existingItemIndex !== -1) {
-//         const updatedCartItems = [...prevCartItems];
-//         if (updatedCartItems[existingItemIndex].quantity > 0) {
-//           updatedCartItems[existingItemIndex].quantity -= 1;
-//         }
-//         if (updatedCartItems[existingItemIndex].quantity === 0) {
-//           updatedCartItems.splice(existingItemIndex, 1);
-//         }
-//         return updatedCartItems;
-//       }
-//       return prevCartItems;
-//     });
-
-//     setProducts((prevProducts) =>
-//       prevProducts.map((product) =>
-//         product.productId === id && product.quantity > 0
-//           ? { ...product, quantity: product.quantity - 1 }
-//           : product
-//       )
-//     );
-//   };
-
-  const renderProduct = ({ item }) => {
-    const quantity = item.quantity || 0;
-
-    return (
+  const renderProduct = ({ item, index }) => (
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate("OrderDetail", { orderId: item?.orderId })
+      }
+    >
       <View style={styles.productContainer}>
-        <View style={styles.imageBox}></View>
+        {/* <Text style={[globalStyles.text]}>{index})</Text> */}
+        <Image
+          source={{ uri: item.img }}
+          style={{ height: 70, width: 60, borderRadius: 4, marginRight: 10 }}
+        />
         <View style={styles.productDetails}>
-          <Text style={globalStyles.text}>{item.productName}</Text>
-          <Text style={styles.productPrice}>₹{item?.price}</Text>
-          <Text style={styles.productQuantity}>
-            {item?.quantityOptions?.[0]}
-          </Text>
-          {/* {item?.size?.map((size) => (
-            <View style={{ width: 100 }} key={size}>
-              <TouchableOpacity
-                onPress={() => {
-                  setProducts((prevProducts) =>
-                    prevProducts.map((product) =>
-                      product.productId === item.productId
-                        ? { ...product, sizeDefault: size }
-                        : product
-                    )
-                  );
-                }}
-                style={styles.sizeButton}
-              >
-                <Text style={globalStyles.text2}>{size}</Text>
-                <RenderIcon
-                  iconName="sort-down"
-                  styles={styles.iconStyle}
-                  iconSize={20}
-                  iconfrom="FontAwesome"
-                />
-              </TouchableOpacity>
-            </View>
-          ))} */}
+        <Text style={[globalStyles.text2,{width:responsiveWidth(50)}]}>Order Id: SH{moment().format('DDYYY')}{item.orderId}</Text>
+          <Text style={styles.productText}>{item.orderDate}</Text>
+
         </View>
-        {quantity > 0 ? (
-          <View style={styles.actionContainer}>
-            <Text style={styles.totalPrice}>₹{item.price * quantity}</Text>
-            <View style={styles.buttonGroup}>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => handleDecrement(item.productId)}
-              >
-                <Text style={styles.actionText}>-</Text>
-              </TouchableOpacity>
-              <Text style={styles.quantityText}>{quantity}</Text>
-              <TouchableOpacity
-                style={styles.actionButton}
-                onPress={() => handleIncrement(item.productId, item.price, item.sizeDefault)}
-              >
-                <Text style={styles.actionText}>+</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ) : (
-          <TouchableOpacity
-            onPress={() => handleIncrement(item.productId, item.price, item.sizeDefault)}
-            style={styles.addButton}
-          >
-            <Text style={globalStyles.text2}>Add</Text>
-          </TouchableOpacity>
-        )}
+        <View style={styles.actionContainer}>
+          <Text style={styles.totalPrice}>₹{item.totalAmount}</Text>
+        </View>
       </View>
-    );
-  };
+    </TouchableOpacity>
+  );
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Garg Super Market</Text>
-        <TextInput style={styles.searchBar} placeholder="Search for item..." />
-      </View>
-     
-      <FlatList
-        data={products}
-        renderItem={renderProduct}
-        keyExtractor={(item) => item.productId.toString()}
-        contentContainerStyle={styles.list}
-      />
-      {cartItems.length > 0 && (
-        <CustomButton
-          onPressfuntion={addToCart}
-          style={styles.cartButton}
-          text="Add to MyOrders"
+    <View style={[globalStyles.container3]}>
+      <PageHeader name={"My Orders"} navigation={navigation} />
+      {isLoading ? (
+        <ActivityIndicator
+          size="large"
+          color={theme.colors.primary}
+          style={{ marginTop: 20 }}
+        />
+      ) : (
+        <FlatList
+          data={products}
+          renderItem={renderProduct}
+          keyExtractor={(item) => item.productId?.toString()}
+          contentContainerStyle={styles.list}
+          ListEmptyComponent={
+            <Text
+              style={[globalStyles.text2, { textAlign: "center", marginTop: 20 }]}
+            >
+              No orders here
+            </Text>
+          }
         />
       )}
     </View>
@@ -222,51 +129,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f9f9f9",
   },
-  header: {
-    padding: 16,
-    backgroundColor: theme.colors.primary,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  headerText: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#fff",
-  },
-  searchBar: {
-    marginTop: 8,
-    height: 40,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    backgroundColor: "#fff",
-  },
-  tabBar: {
-    marginTop: 8,
-    flexDirection: "row",
-    backgroundColor: "#fff",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  tabText: {
-    fontSize: 16,
-    color: "#333",
-    marginRight: 16,
-    padding: 8,
-    borderRadius: 4,
-    backgroundColor: "#f0f0f0",
-  },
-  activeTab: {
-    backgroundColor: theme.colors.secondary,
-    color: "#fff",
-  },
   list: {
-    paddingHorizontal: 16,
+    paddingHorizontal: 5,
     paddingBottom: 16,
+    marginTop: 10,
   },
   productContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
+    marginVertical: 6,
     padding: 10,
     borderRadius: 8,
     backgroundColor: "#fff",
@@ -276,90 +147,29 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
-  imageBox: {
-    width: 80,
-    height: 80,
-    backgroundColor: "#ddd",
-    borderRadius: 8,
-    marginRight: 10,
+  productImage: {
+    height: 50,
+    width: 50,
+    borderRadius: 5,
   },
   productDetails: {
     flex: 1,
     justifyContent: "space-between",
+    marginLeft: 10,
   },
-  productPrice: {
+  productText: {
     fontSize: 16,
-    fontWeight: "bold",
-    color: theme.colors.primary,
-  },
-  productQuantity: {
-    marginTop: 4,
-    color: "#666",
-  },
-  sizeButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 6,
-    padding: 8,
-    marginTop: 8,
-  },
-  iconStyle: {
-    marginLeft: 5,
+    color: "#333",
   },
   actionContainer: {
     alignItems: "flex-end",
     justifyContent: "center",
   },
-  buttonGroup: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginTop: 10,
-  },
-  actionButton: {
-    width: 30,
-    height: 30,
-    justifyContent: "center",
-    alignItems: "center",
-    borderRadius: 15,
-    backgroundColor: theme.colors.secondary,
-  },
-  actionText: {
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: 18,
-  },
-  quantityText: {
-    fontSize: 16,
-    fontWeight: "bold",
-    marginHorizontal: 8,
-  },
   totalPrice: {
     fontSize: 16,
-    fontWeight: "bold",
+    //fontWeight: "bold",
     color: theme.colors.primary,
   },
-  addButton: {
-    backgroundColor: theme.colors.secondary,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 6,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  cartButton: {
-    position: "absolute",
-    bottom: 16,
-    left: 16,
-    right: 16,
-    backgroundColor: theme.colors.primary,
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: "center",
-  },
 });
-
 
 export default MyOrders;

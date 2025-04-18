@@ -2,15 +2,15 @@ import React from 'react';
 import { TouchableOpacity, StyleSheet, Text, View } from 'react-native';
 import { responsiveWidth, responsiveFontSize } from "react-native-responsive-dimensions";
 
-const IconButton = ({ icon, text, onPress, backgroundColor, width, disabled }) => {
+const IconButton = ({ icon, text, onPress, backgroundColor, width, disabled,textColor ,style}) => {
   return (
     <TouchableOpacity
-      style={[styles.button, { backgroundColor, width }, disabled && styles.disabled]}
+      style={[styles.button, { backgroundColor, width }, disabled && styles.disabled,{...style}]}
       onPress={!disabled ? onPress : null}
       disabled={disabled}
     >
       <View style={styles.buttonContent}>
-        <Text style={[styles.buttonText, disabled && styles.disabledText]}>{text}</Text>
+        <Text style={[styles.buttonText, disabled && styles.disabledText,{color:textColor?textColor:'white'}]}>{text}</Text>
         <View style={styles.icon}>
           {icon}
         </View>

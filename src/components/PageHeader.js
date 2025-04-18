@@ -12,10 +12,10 @@ export default function PageHeader({navigation,name}) {
     <View
         style={[
           globalStyles.rowflex2,
-          {marginRight: 'auto', marginBottom: 15,backgroundColor:theme.colors.whiteBg,marginTop:10},
+          {marginRight: 'auto',backgroundColor:theme.colors.whiteBg,marginTop:10},
           
         ]}>
-        <TouchableOpacity style={{height:30,width:30,justifyContent:"center",alignItems:"center",borderRadius:7,backgroundColor:theme.colors.primary,marginRight:50}} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={{height:30,width:30,justifyContent:"center",alignItems:"center",borderRadius:7,backgroundColor:theme.colors.primary,marginRight:10}} onPress={() => navigation.goBack()}>
           <Ionicons
             name="chevron-back"
             size={18}
@@ -23,7 +23,7 @@ export default function PageHeader({navigation,name}) {
             color={"white"}
           />
         </TouchableOpacity>
-        <Text style={[{fontSize: 20,color:"black",fontWeight:"bold"}]}>{name}</Text>
+        <Text style={[{fontSize: 20,color:"black",fontWeight:"bold",marginRight:'auto',}]}>{name}</Text>
       </View>
   )
 }

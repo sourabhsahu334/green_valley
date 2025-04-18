@@ -9,6 +9,10 @@ export const  globalStyles = {
         width:"100%"
     },
     straightline:{height:2,width:"100%",backgroundColor:'black',opacity:.1,marginTop:15},
+    circle:{
+      width:18,
+      height:18,borderRadius:20,borderWidth:1,borderColor:'rgba(0,0,0,.5)',justifyContent:"center",alignItems:"center"
+  },
     searchBox: {
       backgroundColor:"white",
       // opacity:.8,
@@ -37,7 +41,7 @@ export const  globalStyles = {
       color:"black",
       // fontFamily:Family.Medium,
       fontSize:16,
-      fontWeight:"bold"
+      // fontWeight:"bold"
     },
     textInput:{
       color:"black",
@@ -76,7 +80,7 @@ export const  globalStyles = {
         
     },
     box:{
-      height: 90,
+      // height: 90,
       backgroundColor: 'white',
       borderRadius: 10,
       width: '99.5%',
