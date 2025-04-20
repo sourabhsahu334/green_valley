@@ -225,14 +225,18 @@ const Products = ({ navigation, route }) => {
       <View style={styles.productContainer}>
         <View style={{flexDirection:'row',alignItems:'center',flex:1}}>
           <Image source={{ uri: item.image }} style={{ height: 70, width: 60, borderRadius: 4, marginRight: 10 }} />
-          <View style={styles.productDetails}>
+          <View style={{width:'50%'}}>
           <Text style={[globalStyles.text,{width:'60%'}]}>{item.productName}</Text>
           <View style={{flexDirection:'row',justifyContent:'space-between',width:'90%'}}>
           <View>
            {!quantity&&<Text style={styles.productPrice}>₹{item?.productPrice}/{item?.productUnit}</Text>}
            {quantity && <Text style={[globalStyles.text2, { opacity: .7,fontSize:12 }]}>QTY: {item?.sizeDefault}</Text>}
            </View>
-           {quantity ? (
+         
+          </View>
+        </View>
+         <View style={{marginLeft:'auto'}}>
+         {quantity ? (
           <TouchableOpacity
             onPress={() => { setPricemodal(true); setItem(item); setSize(item?.sizeDefault); }}
             style={{
@@ -254,11 +258,10 @@ const Products = ({ navigation, route }) => {
               marginLeft: 'auto'
             }}
           >
-            <Text style={[globalStyles.text2, { color: 'white' }]}>Select</Text>
+            <Text style={[globalStyles.text2, { color: 'white' }]}>Add</Text>
           </TouchableOpacity>
         )}
-          </View>
-        </View>
+         </View>
         </View>
        
         

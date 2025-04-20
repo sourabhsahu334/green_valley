@@ -163,7 +163,7 @@ const OrderDetail = ({navigation}) => {
         ListHeaderComponent={      
           <View>
             <View style={[globalStyles.box,{flexDirection:'column',alignItems:'flex-start',width:responsiveWidth(94),marginLeft:10}]}>
-            <Text style={[globalStyles.text,{marginBottom:15}]}>Order No: SH{moment().format('DDYYY')}{orderId}</Text>
+            <Text style={[globalStyles.text,{marginBottom:15}]}>Order No: SH{orderDetails?.orderNo}</Text>
             <Text style={styles.orderDate}>Order Date: {orderDate}</Text>
             <Text style={styles.orderDate}>Status : {orderDetails?.status.charAt(0).toUpperCase() + orderDetails?.status.slice(1)}
             </Text>

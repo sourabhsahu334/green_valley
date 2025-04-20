@@ -85,7 +85,7 @@ console.log(route.name,"name");
           style={{ height: 70, width: 60, borderRadius: 4, marginRight: 10 }}
         />
         <View style={styles.productDetails}>
-        <Text style={[globalStyles.text2,{width:responsiveWidth(50)}]}>Order Id: SH{moment().format('DDYYY')}{item.orderId}</Text>
+        <Text style={[globalStyles.text2,{width:responsiveWidth(50)}]}>Order Id: SH{item?.orderNo}</Text>
           <Text style={styles.productText}>{item.orderDate}</Text>
 
         </View>

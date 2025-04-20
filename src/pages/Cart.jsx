@@ -64,20 +64,20 @@ const Cart = ({navigation}) => {
   const dispatch = useDispatch()
   const [del,setdel]=useState();
  const focus = useIsFocused()
-  // useEffect(() => {
-  //   const backAction = () => {
-  //     if (modal) {
-  //      setStep(1)
-  //       return true;
-  //     } else {
+  useEffect(() => {
+    const backAction = () => {
+      if (modal) {
+      //  setStep(1)
+      //   return true;
+      } else {
+        navigation.navigate('Main')
+        return true;
+      }
+    };
 
-  //       return true;
-  //     }
-  //   };
-
-  //   const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
-  //   return () => backHandler.remove();
-  // }, []);
+    const backHandler = BackHandler.addEventListener("hardwareBackPress", backAction);
+    return () => backHandler.remove();
+  }, []);
 
   const handleStarPress = (index) => {
     setRating(index + 1); // Stars are 1-indexed

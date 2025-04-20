@@ -4,6 +4,7 @@ import Header from '../components/Header'
 import { http } from '../utils/AxiosInstance'
 import { responsiveHeight, responsiveWidth } from 'react-native-responsive-dimensions'
 import { globalStyles } from '../utils/GlobalStyles'
+import { useIsFocused } from '@react-navigation/native'
 
 const Category = ({navigation}) => {
     const [data,setData]=useState()
@@ -23,24 +24,24 @@ const Category = ({navigation}) => {
     useEffect(()=>{
     fetch()
     },[])
-
+    const focus = useIsFocused()
     useEffect(() => {
-        const backAction = () => {
-        //   console.log()
-          BackHandler.exitApp()
-          // Return true to indicate that we've handled the event
-          return true;
-        };
+      const backAction = () => {
+        if (navigation.isFocused()) {
+          BackHandler.exitApp();
+          return true; // prevent default behavior
+        }
+        return false; // allow default back behavior
+      };
     
-        const backHandler = BackHandler.addEventListener(
-          "hardwareBackPress",
-          backAction
-        );
+      const backHandler = BackHandler.addEventListener(
+        "hardwareBackPress",
+        backAction
+      );
     
-        // Clean up the event listener on unmount
-        return () => backHandler.remove();
-      }, []);
-
+      return () => backHandler.remove();
+    }, [navigation,focus]);
+    
   return (
     <View style={{flex:1,backgroundColor:'white',width:'100%'}}>
         <Header/>
