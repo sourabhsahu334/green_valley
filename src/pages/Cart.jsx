@@ -664,7 +664,7 @@ style={[globalStyles.box,{marginVertical:15}]}>
             <View style={[globalStyles.rowflex]}>
              <View>
              <Text style={[globalStyles.text2,{}]}>Coupon discount</Text>
-              <Text style={[globalStyles.text2,{opacity:.5,width:responsiveWidth(40)}]}>User coupon code to save more</Text>
+              <Text style={[globalStyles.text2,{opacity:.5,width:responsiveWidth(40)}]}>Use coupon code to save more</Text>
 
              </View>
               <TouchableOpacity onPress={()=>setModal2(true)}>
