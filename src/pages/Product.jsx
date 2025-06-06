@@ -106,11 +106,11 @@ const Products = ({ navigation, route }) => {
   const renderProduct = useCallback(({ item }) => {
     const quantity = item?.qty;
     return (
-      <View style={styles.productContainer}>
+      <View style={[styles.productContainer,{flexDirection:'column'}]}>
         <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1 }}>
           <Image source={{ uri: item.image }} style={{ height: 70, width: 60, borderRadius: 4, marginRight: 10 }} />
-          <View style={{ width: '50%' }}>
-            <Text style={[globalStyles.text, { width: '60%' }]}>{item.productName}</Text>
+          <View style={{ width: '80%' }}>
+            <Text style={[globalStyles.text, { width: '80%' }]}>{item.productName}</Text>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '90%' }}>
               <View>
                 {!quantity && <Text style={styles.productPrice}>₹{item?.productPrice}/{item?.productUnit}</Text>}
@@ -118,7 +118,9 @@ const Products = ({ navigation, route }) => {
               </View>
             </View>
           </View>
-          <View style={{ marginLeft: 'auto' }}>
+        
+        </View>
+        <View style={{ marginLeft: 'auto' }}>
             {quantity ? (
               <TouchableOpacity
                 onPress={() => { setPricemodal(true); setItem(item); setSize(item?.sizeDefault); }}
@@ -129,13 +131,12 @@ const Products = ({ navigation, route }) => {
             ) : (
               <TouchableOpacity
                 onPress={() => { setPricemodal(true); setItem(item); }}
-                style={{ backgroundColor: theme.colors.primary, paddingHorizontal: 10, borderRadius: 10 }}
+                style={{ backgroundColor: theme.colors.primary, paddingHorizontal: 10, borderRadius: 4}}
               >
-                <Text style={[globalStyles.text2, { color: 'white' }]}>Add</Text>
+                <Text style={[globalStyles.text, { color: 'white' }]}>Add</Text>
               </TouchableOpacity>
             )}
           </View>
-        </View>
       </View>
     );
   }, []);

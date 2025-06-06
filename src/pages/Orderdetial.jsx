@@ -120,7 +120,7 @@ const OrderDetail = ({navigation}) => {
       <Image source={{uri:item.img}} style={{height:60,width:60,borderRadius:5}}/>
      <View style={{marginLeft:10}}>
 
-     <Text style={styles.productName}>{item.productId}</Text>
+     <Text style={[styles.productName,{width:responsiveWidth(60)}]}>{item.productId}</Text>
       <Text style={styles.productDetail}>
         Quantity: {item.size}
       </Text>
@@ -165,6 +165,8 @@ const OrderDetail = ({navigation}) => {
             <View style={[globalStyles.box,{flexDirection:'column',alignItems:'flex-start',width:responsiveWidth(94),marginLeft:10}]}>
             <Text style={[globalStyles.text,{marginBottom:15}]}>Order No: {orderDetails?.orderNo}</Text>
             <Text style={styles.orderDate}>Order Date: {orderDate}</Text>
+            <Text style={styles.orderDate}>Delivery Time : {orderDetails?.deliveryTime}</Text>
+
             <Text style={styles.orderDate}>Status : {orderDetails?.status.charAt(0).toUpperCase() + orderDetails?.status.slice(1)}
             </Text>
             <Text style={[globalStyles.text2,{opacity:.6}]}>{orderDetails?.address?.split('$')[0]}</Text>

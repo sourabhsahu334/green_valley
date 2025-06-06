@@ -104,7 +104,10 @@ const Cart = ({navigation}) => {
       console.log(data,"obbbb")
       const d= data?.response?.find((te)=>te?.default==1)?.addressId
       console.log(d,'kkk')
-      setAddress(d)
+      if(!address){
+        setAddress(d)
+
+      }
       setAddresses(data)
     } catch (error) {
       console.log(error,"onnn")
@@ -228,19 +231,23 @@ const Cart = ({navigation}) => {
         Alert('Select address first')
       }
       setModal3(false)
+      const params = {
+        method: "placeOrder",
+        addressId: address,
+        userId: 1,
+        productId: products.map((p) => p.productId).join(","),
+        productSize: products.map((p) => p.size).join(","),
+        productQty: products.map((p) => p.quantity).join(","),
+        productPrice: products.map((p) => p.price).join(","),
+        pmode: 'cod',
+        discount,
+        coupon: couper,
+        delivery_time: selectedTime,
+        // only include deliveryFees if total is less than 100
+        ...(total < 100 && { deliveryFees: del }),
+      };
       const { data } = await http.get("/", {
-        params: {
-          method: "placeOrder",
-          addressId:address,
-          userId: 1,
-          productId: products.map((item) => item.productId).join(","),
-          productSize: products.map((item) => item.size).join(","),
-          productQty: products.map((item) => item.quantity).join(","),
-          productPrice: products.map((item) => item.price).join(","),
-          pmode:'cod',
-          discount:discount,
-          coupon:couper
-        },
+        params
       });
       console.log("Order Placed successfully:", data);
       navigation.navigate('Success')
@@ -363,7 +370,7 @@ const Cart = ({navigation}) => {
       style={styles.productContainer}>
           <Image source={{uri:item.productImg}} style={{height:70,width:60,borderRadius:4,marginRight:10}}/>
           <View style={styles.productDetails}>
-          <Text style={globalStyles.text}>{item.productName}</Text>
+          <Text style={[globalStyles.text,{width:responsiveWidth(50)}]}>{item.productName}</Text>
           <Text style={styles.productPrice}>₹{item?.price}</Text>
           <Text style={styles.productQuantity}>
             QTY: {item?.size}
@@ -553,7 +560,7 @@ const Cart = ({navigation}) => {
                   }}
                   style={[{ flexDirection: 'row', borderRadius: 10, justifyContent: 'space-between', alignItems: 'center', backgroundColor: ite == size ? theme.colors.primary : 'rgba(0,0,0,.1)', marginTop: 4, paddingHorizontal: 10, paddingVertical: 5 }]}
                 >
-                  <Text style={[globalStyles.text2]}>{ite}</Text>
+                  <Text style={[globalStyles.text2]}>{ite} {item?.unitList[index]}</Text>
                   <Text style={[globalStyles.text2]}>{item.priceList[index]}</Text>
                 </TouchableOpacity>
               ))}

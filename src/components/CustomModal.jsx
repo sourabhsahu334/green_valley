@@ -35,7 +35,7 @@ const CustomModal = ({
            </View></View>: <View style={{width:responsiveWidth(100),justifyContent:"center",alignItems:"center",backgroundColor:"rgba(0,0,0,.3)",height:height||responsiveHeight(30)}}>
            <View style={{backgroundColor:"white",borderRadius:10,flex:1,height:responsiveHeight(25),width:responsiveWidth(90),padding:10,paddingTop:15,}}>
            <View style={[globalStyles.rowflex,{width:responsiveWidth(95)}]}>
-              <Text style={[globalStyles.text]}>{name}</Text>
+              <Text style={[globalStyles.text,{width:responsiveWidth(60)}]}>{name}</Text>
             <TouchableOpacity onPress={()=>setVisible(false)} style={{marginLeft:"auto",width:responsiveWidth(20)}}>
               <MaterialCommunityIcons name='close' color={'black'} size={20}/>
             </TouchableOpacity>
